@@ -1,6 +1,6 @@
 {
   "name": "@hardyhu/y-mongodb",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "mongodb database adapter for Yjs",
   "type": "module",
   "main": "./dist/y-mongodb.cjs",
@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "test": "rollup -c && nyc --check-coverage --lines 100 --branches 100 --functions 100 --statements 100 node ./dist/test.cjs",
-    "dist": "rollup -c",
+    "dist": "rollup -c && tsc",
     "lint": "markdownlint README.md && standard && tsc",
     "preversion": "npm run lint && npm run test && npm run clean && npm run dist && tsc && test -e dist/src/y-mongodb.d.ts && test -e dist/y-mongodb.cjs",
     "debug": "concurrently 'rollup -wc' 'http-server -o .'"
