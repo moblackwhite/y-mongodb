@@ -1,0 +1,79 @@
+{
+  "name": "@hardyhu/y-mongodb",
+  "version": "0.1.2",
+  "description": "mongodb database adapter for Yjs",
+  "type": "module",
+  "main": "./dist/y-mongodb.cjs",
+  "module": "./src/y-mongodb.js",
+  "types": "./dist/src/y-mongodb.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "clean": "rm -rf dist",
+    "test": "rollup -c && nyc --check-coverage --lines 100 --branches 100 --functions 100 --statements 100 node ./dist/test.cjs",
+    "dist": "rollup -c",
+    "lint": "markdownlint README.md && standard && tsc",
+    "preversion": "npm run lint && npm run test && npm run clean && npm run dist && tsc && test -e dist/src/y-mongodb.d.ts && test -e dist/y-mongodb.cjs",
+    "debug": "concurrently 'rollup -wc' 'http-server -o .'"
+  },
+  "files": [
+    "dist/*",
+    "src/*"
+  ],
+  "standard": {
+    "ignore": [
+      "/dist",
+      "/node_modules",
+      "/docs"
+    ]
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./src/y-mongodb.js",
+      "require": "./dist/y-mongodb.cjs"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moblackwhite/y-mongodb.git"
+  },
+  "keywords": [
+    "Yjs",
+    "Y-mongodb",
+    "CRDT",
+    "offline",
+    "shared editing",
+    "collaboration",
+    "concurrency"
+  ],
+  "author": "HardyHu <1243971719@qq.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/moblackwhite/y-mongodb"
+  },
+  "dependencies": {
+    "level": "^6.0.1",
+    "lib0": "^0.2.31",
+    "mongodb": "^6.15.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^13.0.0",
+    "@rollup/plugin-node-resolve": "^8.1.0",
+    "@types/node": "^22.14.1",
+    "concurrently": "^3.6.1",
+    "http-server": "^0.12.3",
+    "jsdoc": "^3.6.3",
+    "level-mem": "^5.0.1",
+    "markdownlint-cli": "^0.23.2",
+    "nyc": "^15.1.0",
+    "rollup": "^2.20.0",
+    "rollup-plugin-node-polyfills": "^0.2.1",
+    "standard": "^14.3.4",
+    "typescript": "^3.9.6",
+    "y-protocols": "^1.0.0",
+    "yjs": "^13.2.0"
+  },
+  "peerDependencies": {
+    "yjs": "^13.0.0"
+  }
+}
