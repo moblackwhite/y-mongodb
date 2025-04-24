@@ -124,27 +124,45 @@ export class MongodbPersistence {
      */
     constructor(connectionString, { dbName = 'yjs', flushSize = PREFERRED_TRIM_SIZE } = {}) {
         this.client = new MongoClient(connectionString)
-        this.db = this.client.db(dbName)
+        this.dbName = dbName
+        this.flushSize = flushSize
         this.tr = promise.resolve()
+        this.isConnected = false
 
-        // Create indexes
-        this._initIndexes()
+        // Initialize connection and indexes asynchronously
+        this._connect()
     }
 
     async _initIndexes() {
+        // @ts-ignore
         const updatesCollection = this.db.collection('updates')
         await updatesCollection.createIndex({ docName: 1, clock: 1 }, { unique: true })
-
+        // @ts-ignore
         const stateVectorCollection = this.db.collection('stateVectors')
         await stateVectorCollection.createIndex({ docName: 1 }, { unique: true })
-
+        // @ts-ignore
         const metaCollection = this.db.collection('meta')
         await metaCollection.createIndex({ docName: 1, key: 1 }, { unique: true })
     }
 
     /**
-     * Execute a transaction on the database. This will ensure that other processes are currently not writing.
-     *
+     * Connects to MongoDB and initializes indexes
+     * @private
+     */
+    async _connect() {
+        try {
+            await this.client.connect()
+            this.db = this.client.db(this.dbName)
+            this.isConnected = true
+            await this._initIndexes()
+        } catch (err) {
+            console.error('Failed to connect to MongoDB:', err)
+            throw err
+        }
+    }
+
+    /**
+     * Ensure connection is established before executing any transaction
      * @template T
      * @param {function(Db):Promise<T>} f A transaction that receives the db object
      * @return {Promise<T>}
@@ -153,8 +171,15 @@ export class MongodbPersistence {
         const currTr = this.tr
         this.tr = (async () => {
             await currTr
+
+            // Ensure connection is established
+            if (!this.isConnected) {
+                await this._connect()
+            }
+
             let res = null
             try {
+                // @ts-ignore
                 res = await f(this.db)
             } catch (err) {
                 console.warn('Error during y-mongodb transaction', err)
